@@ -53,6 +53,10 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
+        fields = (
+            'title',
+            'course',
+        )
 
 
 class CreateGroupSerializer(serializers.ModelSerializer):
@@ -87,11 +91,11 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def get_lessons_count(self, obj):
         """Количество уроков в курсе."""
-        # TODO Доп. задание
+        return Lesson.objects.filter(course=obj).count()
 
     def get_students_count(self, obj):
         """Общее количество студентов на курсе."""
-        # TODO Доп. задание
+        return User.objects.filter(courses=obj).count()
 
     def get_groups_filled_percent(self, obj):
         """Процент заполнения групп, если в группе максимум 30 чел.."""
@@ -122,3 +126,4 @@ class CreateCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
+        fields = '__all__'

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+# https://github.com/hardqode/test-backend-3?tab=readme-ov-file
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя - студента."""
@@ -29,7 +30,10 @@ class CustomUser(AbstractUser):
 class Balance(models.Model):
     """Модель баланса пользователя."""
 
-    # TODO
+    bonuses_amount = models.PositiveIntegerField(
+        verbose_name='Бонусы',
+        default=1000
+    )
 
     class Meta:
         verbose_name = 'Баланс'

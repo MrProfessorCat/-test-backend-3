@@ -1,4 +1,9 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+
+
+User = get_user_model()
 
 
 class Course(models.Model):
@@ -17,8 +22,15 @@ class Course(models.Model):
         auto_now_add=False,
         verbose_name='Дата и время начала курса'
     )
-
-    # TODO
+    price = models.FloatField(
+        validators=(MinValueValidator(.0),),
+        verbose_name='Стоимость курса'
+    )
+    users = models.ManyToManyField(
+        User,
+        verbose_name='Студенты курса',
+        related_name='courses'
+    )
 
     class Meta:
         verbose_name = 'Курс'
@@ -40,8 +52,13 @@ class Lesson(models.Model):
         max_length=250,
         verbose_name='Ссылка',
     )
-
-    # TODO
+    course = models.ForeignKey(
+        Course,
+        null=True,
+        verbose_name='Курс',
+        related_name='lessons',
+        on_delete=models.SET_NULL
+    )
 
     class Meta:
         verbose_name = 'Урок'
@@ -55,7 +72,16 @@ class Lesson(models.Model):
 class Group(models.Model):
     """Модель группы."""
 
-    # TODO
+    title = models.CharField(
+        max_length=250,
+        verbose_name='Название',
+    )
+    course = models.ForeignKey(
+        Course,
+        verbose_name='Курс',
+        related_name='groups',
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = 'Группа'

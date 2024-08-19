@@ -5,6 +5,8 @@ from rest_framework import serializers
 from courses.models import Course, Group, Lesson
 from users.models import Subscription
 
+from .user_serializer import UserSerializer
+
 User = get_user_model()
 
 
@@ -121,9 +123,39 @@ class CourseSerializer(serializers.ModelSerializer):
         )
 
 
+class CourseShortInfoSerialize(serializers.ModelSerializer):
+    lessons_count = serializers.SerializerMethodField(read_only=True)
+
+    def get_lessons_count(self, obj):
+        """Количество уроков в курсе."""
+        return Lesson.objects.filter(course=obj).count()
+
+    class Meta:
+        model = Course
+        fields = (
+            'author',
+            'title',
+            'start_date',
+            'price',
+            'lessons_count'
+        )
+
+
 class CreateCourseSerializer(serializers.ModelSerializer):
     """Создание курсов."""
 
     class Meta:
         model = Course
         fields = '__all__'
+
+
+class PaidCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = (
+            'author',
+            'title',
+            'start_date',
+            'price',
+            'users'
+        )

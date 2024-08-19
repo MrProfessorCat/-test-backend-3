@@ -150,3 +150,6 @@ DJOSER = {
     },
     "LOGIN_FIELD": "email",
 }
+
+
+MAX_USERS_IN_GROUP = 30

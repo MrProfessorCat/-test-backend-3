@@ -26,10 +26,15 @@ class Course(models.Model):
         validators=(MinValueValidator(.0),),
         verbose_name='Стоимость курса'
     )
+    available = models.BooleanField(
+        default=True,
+        verbose_name='Маркер доступности'
+    )
     users = models.ManyToManyField(
         User,
         verbose_name='Студенты курса',
-        related_name='courses'
+        related_name='courses',
+        through='users.Subscription'
     )
 
     class Meta:
@@ -79,8 +84,13 @@ class Group(models.Model):
     course = models.ForeignKey(
         Course,
         verbose_name='Курс',
-        related_name='groups',
+        related_name='course_groups',
         on_delete=models.CASCADE
+    )
+    users = models.ManyToManyField(
+        User,
+        verbose_name='Участники группы',
+        related_name='user_groups'
     )
 
     class Meta:

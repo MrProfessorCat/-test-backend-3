@@ -8,13 +8,27 @@ def make_payment(request):
 
 
 class IsStudentOrIsAdmin(BasePermission):
+    message = 'У Вас нет доступа к материалам запрашиваемого курса'
+
     def has_permission(self, request, view):
-        # TODO
-        pass
+        course_id = int(request.parser_context.get('kwargs').get('course_id'))
+        return (
+            request.user.is_staff
+            or (
+                request.user.is_authenticated
+                and course_id
+                in request.user.courses.values_list('id', flat=True)
+            )
+        )
 
     def has_object_permission(self, request, view, obj):
-        # TODO
-        pass
+        return (
+            request.user.is_staff
+            or (
+                request.user in obj.course.users
+                and request.method in SAFE_METHODS
+            )
+        )
 
 
 class ReadOnlyOrIsAdmin(BasePermission):

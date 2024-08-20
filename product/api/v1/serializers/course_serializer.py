@@ -6,8 +6,7 @@ from rest_framework import serializers
 
 from courses.models import Course, Group, Lesson
 from users.models import Subscription
-
-from .user_serializer import UserSerializer
+from .user_serializer import StudentSerializer
 
 User = get_user_model()
 
@@ -28,7 +27,6 @@ class LessonSerializer(serializers.ModelSerializer):
 
 class CreateLessonSerializer(serializers.ModelSerializer):
     """Создание уроков."""
-
     class Meta:
         model = Lesson
         fields = (
@@ -36,6 +34,17 @@ class CreateLessonSerializer(serializers.ModelSerializer):
             'link',
             'course'
         )
+
+    def validate(self, data):
+        course_id = self.context.get('course_id')
+        if not Course.objects.filter(id=course_id).exists():
+            raise serializers.ValidationError(
+                f'Курса с идентификатором {course_id} не существует'
+            )
+        return data
+
+    def create(self, validated_data):
+        return Lesson.objects.create(**validated_data)
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -53,13 +62,17 @@ class StudentSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     """Список групп."""
 
-    # TODO Доп. задание
+    course = serializers.SlugRelatedField(
+        read_only=True, slug_field='title'
+    )
+    students = StudentSerializer(source='users', many=True)
 
     class Meta:
         model = Group
         fields = (
             'title',
             'course',
+            'students'
         )
 
 
@@ -170,6 +183,5 @@ class PaidCourseSerializer(serializers.ModelSerializer):
             'author',
             'title',
             'start_date',
-            'price',
-            'users'
+            'price'
         )

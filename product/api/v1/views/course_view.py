@@ -56,7 +56,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
-        return course.groups.all()
+        return course.course_groups.all()
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -68,7 +68,12 @@ class CourseViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
             return CourseSerializer
+        elif self.action == 'pay':
+            return SubscriptionSerializer
         return CreateCourseSerializer
+
+    def get_serializer_context(self):
+        return {'request': self.request}
 
     @action(
         methods=['post'],
@@ -80,6 +85,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         course = get_object_or_404(Course.objects.select_related(), id=pk)
         serializer = PaidCourseSerializer(course)
+
         # Проверяем, не приобрел ли пользователь курс ранее
         if course in request.user.courses.all():
             return HttpResponseBadRequest(
@@ -136,7 +142,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         """Метод позволяет получить список продуктов, доступных для покупки
         (курсы еще не куплены пользователем и у них есть флаг доступности)
         """
-        queryset = Course.objects.all().filter(
+        queryset = self.queryset.filter(
             available=True).exclude(users=request.user)
         serializer = CourseShortInfoSerialize(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

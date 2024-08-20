@@ -18,18 +18,6 @@ class CustomUserSerializer(UserSerializer):
         fields = '__all__'
 
 
-class StudentSerializer(UserSerializer):
-    """Сериализатор с упрощенной информацией о пользователе"""
-
-    class Meta:
-        model = User
-        fields = (
-            'first_name',
-            'last_name',
-            'email'
-        )
-
-
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор подписки."""
     user = serializers.ReadOnlyField(source='user.id')

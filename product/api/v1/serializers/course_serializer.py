@@ -6,7 +6,6 @@ from rest_framework import serializers
 
 from courses.models import Course, Group, Lesson
 from users.models import Subscription
-from .user_serializer import StudentSerializer
 
 User = get_user_model()
 

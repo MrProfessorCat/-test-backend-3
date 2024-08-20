@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Avg, Count
+from django.db.models.functions import Round
 from rest_framework import serializers
 
 from courses.models import Course, Group, Lesson
@@ -101,11 +103,23 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def get_groups_filled_percent(self, obj):
         """Процент заполнения групп, если в группе максимум 30 чел.."""
-        # TODO Доп. задание
+        res = Group.objects.filter(course=obj).annotate(
+            fill_percent=Round(
+                Count('users') * 100 / settings.MAX_USERS_IN_GROUP
+            )
+        ).aggregate(
+            avg_percent=Round(Avg('fill_percent'))
+        ).get('avg_percent')
+        return res
 
     def get_demand_course_percent(self, obj):
         """Процент приобретения курса."""
-        # TODO Доп. задание
+        return (
+            round(
+                100 / User.objects.count()
+                * Subscription.objects.filter(course=obj).count()
+            )
+        )
 
     class Meta:
         model = Course
